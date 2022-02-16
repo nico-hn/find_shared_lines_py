@@ -4,36 +4,33 @@ def readlines_into_set(file):
     lines = set()
 
     with open(file) as f:
-        lines.add = {line.rstrip() for line in f.readlines()}
+        lines |= {line.rstrip() for line in f.readlines()}
+
+    return lines
+
+def repeat_on_files(files, action):
+    lines = readlines_into_set(files.pop(0))
+
+    for file in files:
+        new_lines = readlines_into_set(file)
+        lines = action(lines, new_lines)
 
     return lines
 
 
 def exclude_shared_lines(files):
-    lines = readlines_into_set(files.shift())
-
-    for file in files:
-        lines = lines - readlines_into_set(file)
-
-    return lines
+    action = lambda lines, new_lines: lines - new_lines
+    return repeat_on_files(files, action)
 
 
 def shared_lines(files):
-    lines = readlines_into_set(files.shift())
-
-    for file in files:
-        lines = lines & readlines_into_set(file)
-
-    return lines
+    action = lambda lines, new_lines: lines & new_lines
+    return repeat_on_files(files, action)
 
 
 def join_lines(files):
-    lines = readlines_into_set(files.shift())
-
-    for file in files:
-        lines = lines | readlines_into_set(file)
-
-    return lines
+    action = lambda lines, new_lines: lines | new_lines
+    return repeat_on_files(files, action)
 
 
 tool_description = 'Find lines that are commonly included in given files.'
@@ -60,4 +57,10 @@ parser.add_argument('-j', '--join-lines',
 
 args = parser.parse_args()
 
-args.execute(args.files)
+lines = args.execute(args.files)
+
+sorted_lines = list(lines)
+sorted_lines.sort()
+
+for line in sorted_lines:
+    print(line)
