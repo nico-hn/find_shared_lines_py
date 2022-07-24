@@ -4,7 +4,8 @@ def readlines_into_set(file):
     lines = set()
 
     with open(file) as f:
-        lines |= {line.rstrip() for line in f.readlines()}
+        for line in f:
+            lines.add(line.rstrip())
 
     return lines
 
